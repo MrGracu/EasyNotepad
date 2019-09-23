@@ -1,5 +1,5 @@
 # EasyNotepad
-A program that is a simplified version of a text editor.  
+Program that is a simplified version of a text editor.  
   
 The program allows you to:
 - creating a new document

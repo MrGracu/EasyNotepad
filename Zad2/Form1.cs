@@ -19,6 +19,7 @@ namespace Zad2
         }
 
         bool edytowane = false, czyOdPoczatkuPliku = true;
+        string sciezka = "";
 
         public bool potwierdzZapis()
         {
@@ -28,26 +29,33 @@ namespace Zad2
                 DialogResult result = MessageBox.Show("Niezapisane zmiany zostaną usunięte. Zapisać plik?", "Ostrzeżenie", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
                 if (result == DialogResult.Yes)
                 {
+                    bool czyKontynuowac = false;
                     SaveFileDialog x = new SaveFileDialog();
                     x.Title = "Zapisz plik";
-                    x.Filter = "Pliki tekstowe|*.txt";
+                    x.Filter = "Pliki tekstowe|*.txt|Wszystkie pliki|*.*";
                     x.FilterIndex = 1;
                     x.DefaultExt = "txt";
-                    if (x.ShowDialog() == DialogResult.OK)
+
+                    if (sciezka.Length > 0) czyKontynuowac = true;
+                    else if (x.ShowDialog() == DialogResult.OK)
                     {
-                        StreamWriter w = new StreamWriter(x.FileName);
+                        czyKontynuowac = true;
+                        sciezka = x.FileName;
+                    }
+
+                    if(czyKontynuowac)
+                    {
+                        StreamWriter w = new StreamWriter(sciezka);
                         w.Write(richTextBox1.Text);
                         w.Close();
                         edytowane = false;
-                        this.Text = "Easy Notepad";
+                        this.Text = "Easy Notepad - " + sciezka;
                         return true;
                     }
                     else return false;
                 }
                 else if (result == DialogResult.No)
                 {
-                    edytowane = false;
-                    this.Text = "Easy Notepad";
                     return true;
                 }
                 else
@@ -72,39 +80,77 @@ namespace Zad2
                 x.FilterIndex = 1;
                 if (x.ShowDialog() == DialogResult.OK)
                 {
-                    StreamReader r = new StreamReader(x.FileName);
+                    sciezka = x.FileName;
+                    StreamReader r = new StreamReader(sciezka);
                     richTextBox1.Text = r.ReadToEnd();
                     r.Close();
+                    edytowane = false;
+                    this.Text = "Easy Notepad - " + sciezka;
                 }
             }
         }
 
         private void zapiszToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            bool czyKontynuowac = false;
             SaveFileDialog x = new SaveFileDialog();
             x.Title = "Zapisz plik";
             x.Filter = "Pliki tekstowe|*.txt|Wszystkie pliki|*.*";
             x.FilterIndex = 1;
             x.DefaultExt = "txt";
-            if (x.ShowDialog() == DialogResult.OK)
+
+            if (sciezka.Length > 0) czyKontynuowac = true;
+            else if(x.ShowDialog() == DialogResult.OK)
             {
-                StreamWriter w = new StreamWriter(x.FileName);
+                czyKontynuowac = true;
+                sciezka = x.FileName;
+            }
+
+            if (czyKontynuowac)
+            {
+                StreamWriter w = new StreamWriter(sciezka);
                 w.Write(richTextBox1.Text);
                 w.Close();
                 edytowane = false;
-                this.Text = "Easy Notepad";
+                this.Text = "Easy Notepad - " + sciezka;
+            }
+        }
+
+        private void zapiszJakoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog x = new SaveFileDialog();
+            x.Title = "Zapisz plik";
+            x.Filter = "Pliki tekstowe|*.txt|Wszystkie pliki|*.*";
+            x.FilterIndex = 1;
+            x.DefaultExt = "txt";
+
+            if (x.ShowDialog() == DialogResult.OK)
+            {
+                sciezka = x.FileName;
+                StreamWriter w = new StreamWriter(sciezka);
+                w.Write(richTextBox1.Text);
+                w.Close();
+                edytowane = false;
+                this.Text = "Easy Notepad - " + sciezka;
             }
         }
 
         private void nowyToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if(potwierdzZapis()) richTextBox1.Text = "";
+            if (potwierdzZapis())
+            {
+                sciezka = "";
+                richTextBox1.Text = "";
+                edytowane = false;
+                this.Text = "Easy Notepad";
+            }
         }
 
         private void richTextBox1_TextChanged(object sender, EventArgs e)
         {
             edytowane = true;
-            this.Text = "* Easy Notepad";
+            if(sciezka.Length > 0) this.Text = "* Easy Notepad - " + sciezka;
+            else this.Text = "* Easy Notepad";
         }
 
         private void oProgramieToolStripMenuItem_Click(object sender, EventArgs e)

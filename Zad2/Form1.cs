@@ -18,15 +18,11 @@ namespace Zad2
             InitializeComponent();
         }
 
-        bool edytowane = false;
+        bool edytowane = false, czyOdPoczatkuPliku = true;
 
         public bool potwierdzZapis()
         {
-            if (!edytowane)
-            {
-                edytowane = false;
-                return true;
-            }
+            if (!edytowane) return true;
             else
             {
                 DialogResult result = MessageBox.Show("Niezapisane zmiany zostaną usunięte. Zapisać plik?", "Ostrzeżenie", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
@@ -43,6 +39,7 @@ namespace Zad2
                         w.Write(richTextBox1.Text);
                         w.Close();
                         edytowane = false;
+                        this.Text = "Easy Notepad";
                         return true;
                     }
                     else return false;
@@ -50,6 +47,7 @@ namespace Zad2
                 else if (result == DialogResult.No)
                 {
                     edytowane = false;
+                    this.Text = "Easy Notepad";
                     return true;
                 }
                 else
@@ -59,12 +57,12 @@ namespace Zad2
             }
         }
 
-        private void zakończToolStripMenuItem_Click(object sender, EventArgs e)
+        private void zakonczToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Application.Exit();
         }
 
-        private void otwórzToolStripMenuItem_Click(object sender, EventArgs e)
+        private void otworzToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (potwierdzZapis())
             {
@@ -93,6 +91,8 @@ namespace Zad2
                 StreamWriter w = new StreamWriter(x.FileName);
                 w.Write(richTextBox1.Text);
                 w.Close();
+                edytowane = false;
+                this.Text = "Easy Notepad";
             }
         }
 
@@ -104,6 +104,7 @@ namespace Zad2
         private void richTextBox1_TextChanged(object sender, EventArgs e)
         {
             edytowane = true;
+            this.Text = "* Easy Notepad";
         }
 
         private void oProgramieToolStripMenuItem_Click(object sender, EventArgs e)
@@ -113,50 +114,74 @@ namespace Zad2
 
         private void wyszukajToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            bool czyPoprawne = false;
             Form3 testDialog = new Form3();
-
-            if (testDialog.ShowDialog(this) == DialogResult.OK)
+            testDialog.checkBox1.Checked = czyOdPoczatkuPliku;
+            if(richTextBox1.SelectedText.Length > 0)
             {
-                string wyszukaj = testDialog.textBox1.Text;
-                int poz = -1, pocz = 0;
-                string pozycje = "";
-                do
+                testDialog.textBox1.Text = richTextBox1.SelectedText;
+                testDialog.textBox1.SelectAll();
+            }
+
+            while (!czyPoprawne)
+            {
+                if (testDialog.ShowDialog(this) == DialogResult.OK)
                 {
-                    if (pocz == 0)
-                    {
-                        poz = richTextBox1.Text.IndexOf(wyszukaj);
-                        if (poz > -1) pozycje = poz.ToString();
-                        pocz = poz + 1;
-                    }
+                    string wyszukaj = testDialog.textBox1.Text;
+                    czyOdPoczatkuPliku = testDialog.checkBox1.Checked;
+
+                    if (wyszukaj.Length < 1) testDialog.label2.Text = "Wartość szukana nie może być pusta";
                     else
                     {
-                        if (pocz >= richTextBox1.Text.Length) poz = -1;
-                        else
+                        int poz = richTextBox1.Text.IndexOf(wyszukaj, (czyOdPoczatkuPliku ? 0 : (richTextBox1.SelectionStart + richTextBox1.SelectionLength)));
+                        if (poz > -1)
                         {
-                            poz = richTextBox1.Text.IndexOf(wyszukaj, pocz);
-                            if (poz > -1)
-                            {
-                                pozycje += ", " + poz.ToString();
-                                pocz = poz + 1;
-                            }
+                            richTextBox1.Select(poz,wyszukaj.Length);
+                            czyPoprawne = true;
                         }
+                        else testDialog.label2.Text = "Nie znaleziono szukanego wyrażenia";
                     }
-                } while (poz != -1);
-                if (pozycje.Length > 0) MessageBox.Show("Znaleziono wyrażenie \"" + wyszukaj + "\" na pozycjach: " + pozycje);
+                }
+                else czyPoprawne = true;
             }
 
             testDialog.Dispose();
         }
 
-        private void zamieńToolStripMenuItem1_Click(object sender, EventArgs e)
+        private void zamienToolStripMenuItem1_Click(object sender, EventArgs e)
         {
+            bool czyPoprawne = false;
             Form2 testDialog = new Form2();
-
-            if (testDialog.ShowDialog(this) == DialogResult.OK)
+            if (richTextBox1.SelectedText.Length > 0)
             {
-                string zamien = testDialog.textBox1.Text;
-                string na = testDialog.textBox2.Text;
-                richTextBox1.Text = richTextBox1.Text.Replace(zamien, na);
+                testDialog.textBox1.Text = richTextBox1.SelectedText;
+                testDialog.textBox1.SelectAll();
+            }
+
+            while (!czyPoprawne)
+            {
+                if (testDialog.ShowDialog(this) == DialogResult.OK)
+                {
+                    string zamien = testDialog.textBox1.Text;
+                    string na = testDialog.textBox2.Text;
+                    if (zamien.Length < 1 || na.Length < 1) testDialog.label3.Text = "Wartości nie mogą być puste";
+                    else
+                    {
+                        int poz = richTextBox1.Text.IndexOf(zamien);
+                        if (poz > -1)
+                        {
+                            while (poz > -1)
+                            {
+                                richTextBox1.Select(poz, zamien.Length);
+                                richTextBox1.SelectedText = na;
+                                poz = richTextBox1.Text.IndexOf(zamien);
+                            }
+                            testDialog.label3.Text = "Znaleziono podane wyrażenia i zamieniono";
+                        }
+                        else testDialog.label3.Text = "Nie znaleziono podanego wyrażenia";
+                    }
+                }
+                else czyPoprawne = true;
             }
 
             testDialog.Dispose();
@@ -193,6 +218,16 @@ namespace Zad2
             if (richTextBox1.CanRedo) richTextBox1.Redo();
         }
 
+        void DeleteAction(object sender, EventArgs e)
+        {
+            richTextBox1.SelectedText = "";
+        }
+
+        void SelectAllAction(object sender, EventArgs e)
+        {
+            richTextBox1.SelectAll();
+        }
+
         private void richTextBox1_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control && e.KeyCode == Keys.V)
@@ -213,7 +248,7 @@ namespace Zad2
             UndoAction(sender, e);
         }
 
-        private void ponówToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ponowToolStripMenuItem_Click(object sender, EventArgs e)
         {
             RedoAction(sender, e);
         }
@@ -221,7 +256,18 @@ namespace Zad2
         private void edycjaToolStripMenuItem_Click(object sender, EventArgs e)
         {
             cofnijToolStripMenuItem.Enabled = richTextBox1.CanUndo;
-            ponówToolStripMenuItem.Enabled = richTextBox1.CanRedo;
+            ponowToolStripMenuItem.Enabled = richTextBox1.CanRedo;
+
+            if (richTextBox1.Text.Trim().Length > 0)
+            {
+                zamienToolStripMenuItem1.Enabled = true;
+                wyszukajToolStripMenuItem.Enabled = true;
+            }
+            else
+            {
+                zamienToolStripMenuItem1.Enabled = false;
+                wyszukajToolStripMenuItem.Enabled = false;
+            }
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -252,6 +298,16 @@ namespace Zad2
             menuItemPaste.Click += new EventHandler(PasteAction);
             contextMenuStrip.Items.Add(menuItemPaste);
 
+            ToolStripMenuItem menuItemDelete = new ToolStripMenuItem("Usuń");
+            menuItemDelete.Click += new EventHandler(DeleteAction);
+            contextMenuStrip.Items.Add(menuItemDelete);
+
+            contextMenuStrip.Items.Add(new ToolStripSeparator());
+
+            ToolStripMenuItem menuItemSelectAll = new ToolStripMenuItem("Zaznacz wszystko");
+            menuItemSelectAll.Click += new EventHandler(SelectAllAction);
+            contextMenuStrip.Items.Add(menuItemSelectAll);
+
             contextMenuStrip.Opening += (s, ev) =>
             {
                 menuItemUndo.Enabled = richTextBox1.CanUndo;
@@ -259,20 +315,38 @@ namespace Zad2
 
                 if (richTextBox1.SelectedText.Length > 0)
                 {
+                    menuItemDelete.Enabled = true;
                     menuItemCut.Enabled = true;
                     menuItemCopy.Enabled = true;
                 }
                 else
                 {
+                    menuItemDelete.Enabled = false;
                     menuItemCut.Enabled = false;
                     menuItemCopy.Enabled = false;
                 }
 
                 if (Clipboard.ContainsText()) menuItemPaste.Enabled = true;
                 else menuItemPaste.Enabled = false;
+
+                if (richTextBox1.Text.Length > 0) menuItemSelectAll.Enabled = true;
+                else menuItemSelectAll.Enabled = false;
             };
 
             richTextBox1.ContextMenuStrip = contextMenuStrip;
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            e.Cancel = !potwierdzZapis();
+        }
+
+        private void richTextBox1_LinkClicked(object sender, LinkClickedEventArgs e)
+        {
+            if (MessageBox.Show("Czy chcesz otworzyć w przeglądarce podany link: "+e.LinkText, "Otwieranie linku", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+            {
+                System.Diagnostics.Process.Start(e.LinkText);
+            }
         }
     }
 }

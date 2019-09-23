@@ -21,5 +21,10 @@ namespace Zad2
         {
             DialogResult = DialogResult.OK;
         }
+
+        private void Form2_Load(object sender, EventArgs e)
+        {
+            this.AcceptButton = button2;
+        }
     }
 }

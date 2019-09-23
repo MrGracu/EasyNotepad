@@ -354,7 +354,9 @@ namespace Zad2
             menuItemSelectAll.Click += new EventHandler(SelectAllAction);
             contextMenuStrip.Items.Add(menuItemSelectAll);
 
-            contextMenuStrip.Opening += (s, ev) =>
+            richTextBox1.ContextMenuStrip = contextMenuStrip;
+
+            richTextBox1.ContextMenuStrip.Opening += (s, ev) =>
             {
                 menuItemUndo.Enabled = richTextBox1.CanUndo;
                 menuItemRedo.Enabled = richTextBox1.CanRedo;
@@ -378,8 +380,6 @@ namespace Zad2
                 if (richTextBox1.Text.Length > 0) menuItemSelectAll.Enabled = true;
                 else menuItemSelectAll.Enabled = false;
             };
-
-            richTextBox1.ContextMenuStrip = contextMenuStrip;
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)

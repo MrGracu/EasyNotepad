@@ -9,5 +9,14 @@ The program allows you to:
 - word swap in the text
 - redo and undo operations
 - copying, pasting
+- drag and drop files
   
 Program written in VS2017
+
+---
+
+You can download [here](https://gmika.pl/dwnld/csharp/EasyNotepad_v1.0.zip) this application.  
+Archive password protected: **gmika.pl**  
+SHA-1 checksum: 548065137907AAF4213C3A5614AFC2252D1E4D80
+
+To use this application you need [Microsoft .NET Framework](https://www.microsoft.com/pl-pl/download/details.aspx?id=53345)

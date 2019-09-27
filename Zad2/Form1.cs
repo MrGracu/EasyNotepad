@@ -13,13 +13,24 @@ namespace Zad2
 {
     public partial class Form1 : Form
     {
-        public Form1()
+        bool edytowane = false, czyOdPoczatkuPliku = true, czyDragDrop = false;
+        string sciezka = "";
+
+        public Form1(string[] args)
         {
             InitializeComponent();
-        }
 
-        bool edytowane = false, czyOdPoczatkuPliku = true;
-        string sciezka = "";
+            if (args.Length > 0)
+            {
+                sciezka = args[0];
+                StreamReader r = new StreamReader(sciezka);
+                richTextBox1.Text = r.ReadToEnd();
+                r.Close();
+                //czyDragDrop = false;
+                this.Text = "Easy Notepad - " + sciezka;
+                edytowane = false;
+            }
+        }
 
         public bool potwierdzZapis()
         {
@@ -148,9 +159,13 @@ namespace Zad2
 
         private void richTextBox1_TextChanged(object sender, EventArgs e)
         {
-            edytowane = true;
-            if(sciezka.Length > 0) this.Text = "* Easy Notepad - " + sciezka;
-            else this.Text = "* Easy Notepad";
+            if (!czyDragDrop)
+            {
+                edytowane = true;
+                if (sciezka.Length > 0) this.Text = "* Easy Notepad - " + sciezka;
+                else this.Text = "* Easy Notepad";
+            }
+            else czyDragDrop = false;
         }
 
         private void oProgramieToolStripMenuItem_Click(object sender, EventArgs e)
@@ -318,6 +333,10 @@ namespace Zad2
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            richTextBox1.AllowDrop = true;
+            richTextBox1.DragEnter += Form1_DragEnter;
+            richTextBox1.DragDrop += Form1_DragDrop;
+
             ContextMenuStrip contextMenuStrip = new System.Windows.Forms.ContextMenuStrip();
             contextMenuStrip.ShowImageMargin = false;
 
@@ -385,6 +404,32 @@ namespace Zad2
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             e.Cancel = !potwierdzZapis();
+        }
+
+        private void Form1_DragDrop(object sender, DragEventArgs e)
+        {
+            var data = e.Data.GetData(DataFormats.FileDrop);
+            if (data != null && potwierdzZapis())
+            {
+                var fileNames = data as string[];
+                if (fileNames.Length > 0)
+                {
+                    czyDragDrop = true;
+                    sciezka = fileNames[0];
+                    StreamReader r = new StreamReader(sciezka);
+                    richTextBox1.Text = r.ReadToEnd();
+                    r.Close();
+                    //czyDragDrop = false;
+                    this.Text = "Easy Notepad - " + sciezka;
+                    edytowane = false;
+                }
+            }
+        }
+
+        private void Form1_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effect = DragDropEffects.Copy;
+            else e.Effect = DragDropEffects.None;
         }
 
         private void richTextBox1_LinkClicked(object sender, LinkClickedEventArgs e)

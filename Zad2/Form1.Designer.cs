@@ -222,6 +222,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(254)))), ((int)(((byte)(250)))));
             this.ClientSize = new System.Drawing.Size(933, 519);
             this.Controls.Add(this.richTextBox1);
             this.Controls.Add(this.menuStrip1);

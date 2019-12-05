@@ -11,7 +11,7 @@ The program allows you to:
 - copying, pasting
 - drag and drop files
   
-Program written in VS2017
+Program written in VS2017 (C#)
 
 ---
 

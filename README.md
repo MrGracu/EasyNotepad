@@ -24,5 +24,5 @@ To use this application you need [Microsoft .NET Framework](https://www.microsof
 ## Gallery
 
 <p align="center">
- <img width="450" src="https://gmika.pl/img_gallery/EasyNotepad.jpg" alt="EasyNotepad image 1">
+ <img width="550" src="https://gmika.pl/img_gallery/EasyNotepad.jpg" alt="EasyNotepad image 1">
 </p>
